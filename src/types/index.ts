@@ -39,6 +39,18 @@ export interface ShopSummary {
   slug: string
   address: string
   isActive: boolean
+  transactionCount: number
+  vendorCount: number
+  customerCount: number
+}
+
+export interface PlanLimits {
+  totalTransactions: number
+  maxShops: number
+  maxUsers: number
+  maxVendors: number
+  maxCustomers: number
+  maxExpenses: number
 }
 
 export interface SubscriptionSummary {
@@ -48,6 +60,7 @@ export interface SubscriptionSummary {
   planPrice: number
   startDate: string | null
   expiryDate: string | null
+  limits: PlanLimits
 }
 
 export interface CustomerDetail {

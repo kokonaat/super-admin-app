@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Store } from 'lucide-react'
+import { ArrowLeft, Store, ShoppingCart, Users, Truck, BarChart2 } from 'lucide-react'
 import { useCustomerDetail, useAssignSubscription } from '@/hooks/usePlatformCustomers'
 import { useBillingByCustomer } from '@/hooks/useBilling'
 import { usePlans } from '@/hooks/usePlans'
@@ -89,15 +89,40 @@ export default function CustomerDetail() {
             {customer.shops.length === 0 ? (
               <p className="text-sm text-muted-foreground">No shops yet</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {customer.shops.map((shop) => (
-                  <div key={shop.id} className="flex items-center gap-3 rounded-md border p-3">
-                    <Store className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">{shop.name}</p>
-                      <p className="text-xs text-muted-foreground">{shop.address || shop.slug}</p>
+                  <div key={shop.id} className="rounded-md border p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Store className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">{shop.name}</p>
+                        <p className="text-xs text-muted-foreground">{shop.address || shop.slug}</p>
+                      </div>
+                      <AccountStatusBadge isActive={shop.isActive} />
                     </div>
-                    <AccountStatusBadge isActive={shop.isActive} />
+                    <div className="grid grid-cols-3 gap-2 pt-1 border-t">
+                      <div className="flex items-center gap-1.5">
+                        <ShoppingCart className="h-3.5 w-3.5 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Transactions</p>
+                          <p className="text-sm font-semibold">{shop.transactionCount.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Truck className="h-3.5 w-3.5 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Vendors</p>
+                          <p className="text-sm font-semibold">{shop.vendorCount.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Customers</p>
+                          <p className="text-sm font-semibold">{shop.customerCount.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -109,21 +134,47 @@ export default function CustomerDetail() {
       {tab === 'subscription' && (
         <div className="space-y-4">
           {customer.subscription ? (
-            <div className="rounded-xl border bg-card p-5">
-              <h2 className="mb-3 font-semibold">Current Plan</h2>
-              <p className="text-2xl font-bold">{customer.subscription.planName}</p>
-              <p className="text-sm text-muted-foreground">৳{customer.subscription.planPrice} / month</p>
-              {customer.subscription.startDate && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Started: {format(new Date(customer.subscription.startDate), 'MMM d, yyyy')}
-                </p>
-              )}
-              {customer.subscription.expiryDate && (
-                <p className="text-xs text-muted-foreground">
-                  Expires: {format(new Date(customer.subscription.expiryDate), 'MMM d, yyyy')}
-                </p>
-              )}
-            </div>
+            <>
+              <div className="rounded-xl border bg-card p-5">
+                <h2 className="mb-3 font-semibold">Current Plan</h2>
+                <p className="text-2xl font-bold">{customer.subscription.planName}</p>
+                <p className="text-sm text-muted-foreground">৳{customer.subscription.planPrice} / month</p>
+                {customer.subscription.startDate && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Started: {format(new Date(customer.subscription.startDate), 'MMM d, yyyy')}
+                  </p>
+                )}
+                {customer.subscription.expiryDate && (
+                  <p className="text-xs text-muted-foreground">
+                    Expires: {format(new Date(customer.subscription.expiryDate), 'MMM d, yyyy')}
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-xl border bg-card p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <BarChart2 className="h-4 w-4 text-muted-foreground" />
+                  <h2 className="font-semibold">Plan Limits</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { label: 'Monthly Transactions', value: customer.subscription.limits.totalTransactions },
+                    { label: 'Vendors', value: customer.subscription.limits.maxVendors },
+                    { label: 'Customers', value: customer.subscription.limits.maxCustomers },
+                    { label: 'Shops', value: customer.subscription.limits.maxShops },
+                    { label: 'Users', value: customer.subscription.limits.maxUsers },
+                    { label: 'Expenses', value: customer.subscription.limits.maxExpenses },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="rounded-lg border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+                      <p className="text-lg font-bold">
+                        {value === -1 ? '∞' : value.toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
           ) : (
             <p className="text-sm text-muted-foreground">No active subscription</p>
           )}
